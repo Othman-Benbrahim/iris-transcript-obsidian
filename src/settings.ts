@@ -4,8 +4,6 @@ import type { TimestampMode } from "./note";
 
 export interface IrisSettings {
   languages: string[];
-  revoldivApiKey: string;
-  revoldivOwnerId: string;
   fantasyCloudApiKey: string;
   fantasyCloudUrl: string;
   fantasyCloudModel: string;
@@ -18,8 +16,6 @@ export interface IrisSettings {
 
 export const DEFAULT_SETTINGS: IrisSettings = {
   languages: ["fr", "en"],
-  revoldivApiKey: "",
-  revoldivOwnerId: "",
   fantasyCloudApiKey: "",
   fantasyCloudUrl: "https://fantasyai.cloud/api/v1",
   fantasyCloudModel: "",
@@ -69,34 +65,6 @@ export class IrisSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.outputFolder)
           .onChange(async (v) => {
             this.plugin.settings.outputFolder = v.trim() || "IRIS-Transcript";
-            await this.plugin.saveSettings();
-          }),
-      );
-
-    // --- Revoldiv (fallback) ---
-    new Setting(containerEl).setName("Revoldiv (fallback)").setHeading();
-
-    new Setting(containerEl)
-      .setName("Clé API Revoldiv")
-      .setDesc("Utilisée quand la vidéo YouTube n'a aucun sous-titre.")
-      .addText((t) => {
-        t.inputEl.type = "password";
-        t.setPlaceholder("sk-...")
-          .setValue(this.plugin.settings.revoldivApiKey)
-          .onChange(async (v) => {
-            this.plugin.settings.revoldivApiKey = v.trim();
-            await this.plugin.saveSettings();
-          });
-      });
-
-    new Setting(containerEl)
-      .setName("Owner ID Revoldiv")
-      .setDesc("Identifiant requis par l'API Revoldiv.")
-      .addText((t) =>
-        t
-          .setValue(this.plugin.settings.revoldivOwnerId)
-          .onChange(async (v) => {
-            this.plugin.settings.revoldivOwnerId = v.trim();
             await this.plugin.saveSettings();
           }),
       );

@@ -2,13 +2,12 @@ import { Notice, Plugin, TFile, normalizePath } from "obsidian";
 import { DEFAULT_SETTINGS, IrisSettings, IrisSettingTab } from "./settings";
 import { TranscribeModal } from "./modal";
 import { extractVideoId, sanitizeFilename } from "./util";
-import { assembleNote, NoteData, TranscriptSegment, TranscriptSource } from "./note";
+import { assembleNote, NoteData, TranscriptSegment } from "./note";
 import {
   fetchYoutubeTranscript,
   NoSubtitlesError,
   TranscriptFatalError,
 } from "./transcript";
-import { fetchRevoldivTranscript, RevoldivError } from "./revoldiv";
 import { callLlm, structureByPauses } from "./structure";
 import { registerMarkmap } from "./markmap";
 
@@ -17,7 +16,6 @@ interface TranscriptionResult {
   title: string;
   durationSeconds: number | null;
   language: string;
-  source: TranscriptSource;
 }
 
 export default class IrisTranscriptPlugin extends Plugin {
@@ -30,7 +28,9 @@ export default class IrisTranscriptPlugin extends Plugin {
       id: "transcribe-youtube-video",
       name: "Transcrire une vidéo YouTube",
       callback: () => {
-        new TranscribeModal(this.app, (url) => this.handleUrl(url)).open();
+        new TranscribeModal(this.app, (url) => {
+          void this.handleUrl(url);
+        }).open();
       },
     });
 
@@ -51,7 +51,7 @@ export default class IrisTranscriptPlugin extends Plugin {
     // --- Étape 1 : transcription ---
     let t: TranscriptionResult;
     try {
-      t = await this.transcribe(videoId, url);
+      t = await this.transcribe(videoId);
     } catch (e) {
       this.notifyTranscriptionError(e);
       return;
@@ -69,7 +69,6 @@ export default class IrisTranscriptPlugin extends Plugin {
       title: t.title,
       durationSeconds: t.durationSeconds,
       language: t.language,
-      source: t.source,
       segments: t.segments,
       mindmap,
       summary,
@@ -88,32 +87,10 @@ export default class IrisTranscriptPlugin extends Plugin {
     }
   }
 
-  /** Transcription YouTube, avec fallback Revoldiv si configuré. */
-  private async transcribe(
-    videoId: string,
-    url: string,
-  ): Promise<TranscriptionResult> {
+  /** Transcription via les sous-titres YouTube. */
+  private async transcribe(videoId: string): Promise<TranscriptionResult> {
     new Notice("IRIS : récupération des sous-titres YouTube…");
-    try {
-      const yt = await fetchYoutubeTranscript(videoId, this.settings.languages);
-      return { ...yt, source: "youtube" };
-    } catch (e) {
-      if (e instanceof NoSubtitlesError) {
-        if (!this.settings.revoldivApiKey) {
-          throw new NoSubtitlesError(videoId); // remonté tel quel : notice dédiée
-        }
-        new Notice("Aucun sous-titre YouTube. Tentative via Revoldiv…");
-        const rev = await fetchRevoldivTranscript(url, this.settings);
-        return {
-          segments: rev.segments,
-          title: `Vidéo ${videoId}`,
-          durationSeconds: null,
-          language: rev.language,
-          source: "revoldiv",
-        };
-      }
-      throw e;
-    }
+    return fetchYoutubeTranscript(videoId, this.settings.languages);
   }
 
   /** Structuration : LLM si Fantasy Cloud est configuré, sinon pauses. */
@@ -160,11 +137,12 @@ export default class IrisTranscriptPlugin extends Plugin {
   private notifyTranscriptionError(e: unknown): void {
     if (e instanceof NoSubtitlesError) {
       new Notice(
-        "Aucun sous-titre disponible. Configure une clé API Revoldiv dans les paramètres.",
+        "Aucun sous-titre disponible pour cette vidéo. " +
+          "La transcription nécessite des sous-titres YouTube (manuels ou auto-générés).",
       );
       return;
     }
-    if (e instanceof TranscriptFatalError || e instanceof RevoldivError) {
+    if (e instanceof TranscriptFatalError) {
       new Notice(e.message);
       return;
     }
@@ -195,7 +173,8 @@ export default class IrisTranscriptPlugin extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    const stored = (await this.loadData()) as Partial<IrisSettings> | null;
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, stored ?? {});
   }
 
   async saveSettings(): Promise<void> {

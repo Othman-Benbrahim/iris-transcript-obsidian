@@ -24,16 +24,14 @@ export class MarkmapRenderChild extends MarkdownRenderChild {
     try {
       const wrapper = this.containerEl.createDiv({ cls: "iris-markmap-container" });
       wrapper.style.setProperty("--iris-mm-height", `${this.height}px`);
-      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      svg.classList.add("iris-markmap-svg");
-      wrapper.appendChild(svg);
+      const svg = wrapper.createSvg("svg", { cls: "iris-markmap-svg" });
 
       const { root } = transformer.transform(this.source);
       this.mm = Markmap.create(svg, undefined, root);
 
       // Le SVG vient d'être inséré : on ajuste une fois ses dimensions connues.
       window.setTimeout(() => {
-        this.mm?.fit();
+        void this.mm?.fit();
       }, 0);
     } catch (e) {
       console.error("IRIS-Transcript (markmap):", e);

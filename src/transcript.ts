@@ -6,7 +6,7 @@ import {
   YoutubeTranscriptTooManyRequestError,
   YoutubeTranscriptVideoUnavailableError,
 } from "youtube-transcript-plus";
-import type { TranscriptConfig, TranscriptResult } from "youtube-transcript-plus";
+import type { TranscriptConfig } from "youtube-transcript-plus";
 import { obsidianFetch } from "./http";
 import { TranscriptSegment } from "./note";
 
@@ -17,7 +17,7 @@ export interface YoutubeTranscriptOutcome {
   language: string;
 }
 
-/** Indique qu'aucun sous-titre n'est disponible : déclenche le fallback Revoldiv. */
+/** Indique qu'aucun sous-titre n'est disponible pour la vidéo. */
 export class NoSubtitlesError extends Error {
   constructor(public readonly videoId: string) {
     super("Aucun sous-titre disponible pour cette vidéo.");
@@ -38,7 +38,7 @@ export class TranscriptFatalError extends Error {
  * toutes les requêtes par requestUrl() (contournement CORS).
  *
  * Essaie chaque langue configurée dans l'ordre, puis la piste par défaut.
- * - aucun sous-titre / désactivés          -> NoSubtitlesError (fallback Revoldiv)
+ * - aucun sous-titre / désactivés          -> NoSubtitlesError
  * - limite de taux / vidéo indisponible    -> TranscriptFatalError
  */
 export async function fetchYoutubeTranscript(
@@ -64,10 +64,7 @@ export async function fetchYoutubeTranscript(
         ? { ...baseConfig, lang, videoDetails: true }
         : { ...baseConfig, videoDetails: true };
 
-      const result = (await YoutubeTranscript.fetchTranscript(
-        videoId,
-        config,
-      )) as TranscriptResult;
+      const result = await YoutubeTranscript.fetchTranscript(videoId, config);
 
       const segments: TranscriptSegment[] = result.segments.map((s) => ({
         text: s.text,

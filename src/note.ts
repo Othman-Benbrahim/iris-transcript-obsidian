@@ -11,15 +11,12 @@ export interface TranscriptSegment {
   duration: number;
 }
 
-export type TranscriptSource = "youtube" | "revoldiv" | "mock";
-
 export interface NoteData {
   videoId: string;
   videoUrl: string;
   title: string;
   durationSeconds: number | null;
   language: string;
-  source: TranscriptSource;
   segments: TranscriptSegment[];
   /** Contenu Markdown de la mindmap (les titres ### et listes), sans l'en-tête de section. */
   mindmap: string;
@@ -120,7 +117,7 @@ export function assembleNote(data: NoteData): string {
     `video_duration: ${yamlString(duration)}`,
     `transcription_date: ${today()}`,
     `transcription_language: ${data.language}`,
-    `transcription_source: ${data.source}`,
+    `transcription_source: youtube`,
     `has_llm_mindmap: ${data.llmMindmap}`,
     `has_llm_summary: ${data.llmSummary}`,
     "---",

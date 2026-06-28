@@ -25,6 +25,6 @@ export async function obsidianFetch(params: FetchParams): Promise<Response> {
 
   return new Response(res.text, {
     status: res.status,
-    headers: res.headers as Record<string, string>,
+    headers: res.headers,
   });
 }

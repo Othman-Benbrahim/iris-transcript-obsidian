@@ -249,17 +249,11 @@ class TimeoutError extends Error {
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timer = window.setTimeout(() => reject(new TimeoutError()), ms);
-    promise.then(
-      (v) => {
-        window.clearTimeout(timer);
-        resolve(v);
-      },
-      (e) => {
-        window.clearTimeout(timer);
-        reject(e);
-      },
-    );
+  let timer = 0;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = window.setTimeout(() => reject(new TimeoutError()), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    window.clearTimeout(timer);
   });
 }
