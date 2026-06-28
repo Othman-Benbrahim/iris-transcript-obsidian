@@ -2,7 +2,7 @@
 
 Plugin Obsidian qui transforme une URL YouTube en note Markdown : **transcription → mindmap → résumé**.
 
-- Transcription via les sous-titres YouTube (gratuit, sans clé API), avec fallback Revoldiv.
+- Transcription via les sous-titres YouTube (gratuit, sans clé API).
 - Mindmap **interactive intégrée** (zoom, déplacement, nœuds repliables), rendue par le plugin lui-même — aucun plugin tiers requis.
 - Résumé optionnel via un LLM (Fantasy Cloud).
 - Métadonnées en frontmatter, indexables par Dataview.
@@ -31,7 +31,11 @@ Crée une clé gratuite chez l'un d'eux (sans carte bancaire pour Groq / Google 
 
 **Mindmap interactive.** La mindmap est intégrée directement : `markmap-lib` + `markmap-view` sont bundlés, et un processeur de bloc de code rend les blocs ` ```iris-mindmap ` en SVG interactif (`src/markmap.ts`). Aucune dépendance à un plugin tiers. La langue de bloc dédiée (`iris-mindmap`) évite tout conflit si le plugin communautaire Markmap est aussi installé. Hauteur réglable dans les paramètres.
 
-**Revoldiv — à vérifier.** La page d'API de Revoldiv est une SPA dont le contrat exact n'a pas pu être lu automatiquement. `src/revoldiv.ts` suit le contrat de la spec (`POST /api/v1/transcribe`, headers `x-api-key` + `x-primary-owner-id`, corps `{ url, language }`) et tolère plusieurs formes de réponse. Le chemin, les headers et la forme attendue sont isolés en haut du fichier — à confirmer contre le tableau de bord Revoldiv si le fallback échoue.
+**Utilisation du réseau (transparence).** Le plugin n'effectue que deux types de requêtes réseau, toutes via `requestUrl()` :
+1. **YouTube** — récupération des sous-titres de la vidéo demandée (via `youtube-transcript-plus`). Indispensable au fonctionnement.
+2. **Endpoint LLM compatible OpenAI** (Fantasy Cloud ou autre) — **uniquement** si tu as configuré une clé, pour générer le résumé et la mindmap structurée.
+
+Aucune télémétrie, aucun autre serveur contacté. Les bibliothèques tierces bundlées (`d3`, `markmap`) contiennent des appels `atob`/`btoa` (encodage base64 pour la gestion d'assets de rendu) et des helpers de transpilation (`__awaiter`, issus de `youtube-transcript-plus`) : ils ne servent ni à dissimuler du code ni à masquer des clés.
 
 ## Installation (manuelle, en attendant le marketplace)
 
@@ -52,9 +56,10 @@ Crée une clé gratuite chez l'un d'eux (sans carte bancaire pour Groq / Google 
 |---|---|---|
 | Langues de transcription | `fr, en` | Ordre de priorité des sous-titres |
 | Dossier de sortie | `IRIS-Transcript` | Emplacement des notes |
-| Clé API Revoldiv / Owner ID | vide | Fallback quand YouTube n'a pas de sous-titres |
-| Clé / URL / Modèle Fantasy Cloud | vide / `https://api.fantasyai.cloud` | Résumé + mindmap LLM |
+| Clé / URL / Modèle Fantasy Cloud | vide / `https://fantasyai.cloud/api/v1` | Résumé + mindmap LLM (accepte tout endpoint compatible OpenAI) |
 | Seuil pause chapitre / section | `10` / `5` (s) | Mindmap en mode dégradé (sans LLM) |
+| Horodatage de la transcription | `paragraphes` | Mise en forme du texte transcrit |
+| Hauteur de la mindmap | `400` px | Taille du panneau interactif |
 
 ## Développement
 

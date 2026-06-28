@@ -1,16 +1,22 @@
 import esbuild from "esbuild";
 import process from "process";
-import builtins from "builtin-modules";
+import { builtinModules } from "module";
 
 const banner = `/* IRIS-Transcript — bundle généré par esbuild. Ne pas éditer ce fichier directement : modifier les sources dans src/. */`;
 
 const prod = process.argv[2] === "production";
 
+// Built-ins Node (versions nues ET préfixées node:), marqués externes.
+const nodeBuiltins = [
+  ...builtinModules,
+  ...builtinModules.map((m) => `node:${m}`),
+];
+
 /**
  * youtube-transcript-plus importe node:fs/promises et node:path uniquement pour
  * sa classe FsCache (cache disque), que nous n'utilisons pas (cache en mémoire
  * par défaut). On résout ces imports vers un module vide : le code n'est jamais
- * exécuté, et le bundle reste portable (aucun built-in Node embarqué).
+ * exécuté, et le bundle reste portable.
  */
 const stubNodeBuiltins = {
   name: "stub-unused-node-builtins",
@@ -45,10 +51,10 @@ const context = await esbuild.context({
     "@lezer/common",
     "@lezer/highlight",
     "@lezer/lr",
-    ...builtins,
+    ...nodeBuiltins,
   ],
   format: "cjs",
-  target: "es2018",
+  target: "es2020",
   logLevel: "info",
   sourcemap: prod ? false : "inline",
   treeShaking: true,

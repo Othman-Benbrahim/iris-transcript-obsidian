@@ -1,8 +1,8 @@
 {
   "id": "iris-transcript",
   "name": "IRIS-Transcript",
-  "version": "0.1.0",
-  "minAppVersion": "1.5.0",
+  "version": "0.1.1",
+  "minAppVersion": "1.7.0",
   "description": "Transcrit une vidéo YouTube, la structure en mindmap (compatible Markmap) et en produit un résumé, dans une note Markdown.",
   "author": "Othman Ben Brahim / Azrivo",
   "authorUrl": "https://github.com/Othman-Benbrahim",
