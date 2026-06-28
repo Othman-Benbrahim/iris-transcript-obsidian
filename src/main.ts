@@ -37,7 +37,7 @@ export default class IrisTranscriptPlugin extends Plugin {
     this.addSettingTab(new IrisSettingTab(this.app, this));
 
     // Rendu interactif des blocs ```iris-mindmap (sans plugin tiers).
-    registerMarkmap(this);
+    registerMarkmap(this, () => this.settings.mindmapHeight);
   }
 
   /** Pipeline complet : transcription -> structuration -> note (spec §4.1). */

@@ -60,14 +60,11 @@ export class MarkmapRenderChild extends MarkdownRenderChild {
  * affiche alors une mindmap interactive — sans plugin tiers.
  */
 export function registerMarkmap(
-  plugin: Plugin & { settings: { mindmapHeight: number } },
+  plugin: Plugin,
+  getHeight: () => number,
 ): void {
   plugin.registerMarkdownCodeBlockProcessor("iris-mindmap", (source, el, ctx) => {
-    const child = new MarkmapRenderChild(
-      el,
-      source.trim(),
-      plugin.settings.mindmapHeight,
-    );
+    const child = new MarkmapRenderChild(el, source.trim(), getHeight());
     ctx.addChild(child);
   });
 }
