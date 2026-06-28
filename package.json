@@ -1,0 +1,32 @@
+{
+  "name": "iris-transcript",
+  "version": "0.1.0",
+  "description": "Plugin Obsidian : transcription, mindmap et résumé de vidéos YouTube.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc --noEmit --skipLibCheck && node esbuild.config.mjs production",
+    "typecheck": "tsc --noEmit --skipLibCheck"
+  },
+  "keywords": [
+    "obsidian",
+    "youtube",
+    "transcript",
+    "mindmap",
+    "markmap"
+  ],
+  "author": "Othman Ben Brahim / Azrivo",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "builtin-modules": "^4.0.0",
+    "esbuild": "^0.25.0",
+    "obsidian": "latest",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "markmap-lib": "^0.18.0",
+    "markmap-view": "^0.18.0",
+    "youtube-transcript-plus": "^2.0.0"
+  }
+}

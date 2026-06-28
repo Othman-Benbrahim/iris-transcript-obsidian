@@ -1,0 +1,18 @@
+.iris-url-input {
+  width: 100%;
+}
+
+.iris-markmap-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.iris-markmap-svg {
+  width: 100%;
+  display: block;
+  height: var(--iris-mm-height, 400px);
+}
+
+.iris-markmap-fallback {
+  white-space: pre-wrap;
+}

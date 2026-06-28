@@ -1,0 +1,7 @@
+{
+  "id": "iris-transcript",
+  "name": "IRIS-Transcript",
+  "author": "Othman Ben Brahim / Azrivo",
+  "description": "Transcrit une vidéo YouTube, la structure en mindmap (compatible Markmap) et en produit un résumé, dans une note Markdown.",
+  "repo": "Othman-Benbrahim/iris-transcript-obsidian"
+}
