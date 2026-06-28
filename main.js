@@ -38921,13 +38921,9 @@ var MarkmapRenderChild = class extends import_obsidian5.MarkdownRenderChild {
     this.mm = null;
   }
 };
-function registerMarkmap(plugin2) {
+function registerMarkmap(plugin2, getHeight) {
   plugin2.registerMarkdownCodeBlockProcessor("iris-mindmap", (source, el, ctx) => {
-    const child = new MarkmapRenderChild(
-      el,
-      source.trim(),
-      plugin2.settings.mindmapHeight
-    );
+    const child = new MarkmapRenderChild(el, source.trim(), getHeight());
     ctx.addChild(child);
   });
 }
@@ -38946,7 +38942,7 @@ var IrisTranscriptPlugin = class extends import_obsidian6.Plugin {
       }
     });
     this.addSettingTab(new IrisSettingTab(this.app, this));
-    registerMarkmap(this);
+    registerMarkmap(this, () => this.settings.mindmapHeight);
   }
   /** Pipeline complet : transcription -> structuration -> note (spec §4.1). */
   async handleUrl(url) {

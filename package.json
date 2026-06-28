@@ -1,6 +1,6 @@
 {
   "name": "iris-transcript",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Plugin Obsidian : transcription, mindmap et résumé de vidéos YouTube.",
   "main": "main.js",
   "scripts": {
